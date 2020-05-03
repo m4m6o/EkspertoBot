@@ -5,7 +5,7 @@
 
 import config
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, MessageHandler, CommandHandler Filters
+from telegram.ext import Updater, CallbackQueryHandler, MessageHandler, CommandHandler, Filters
 
 # pos & neg callbacks
 CALLBACK_GOOD = '5'
@@ -14,6 +14,7 @@ CALLBACK_BAD  = '2'
 GOOD_STICKER  = 'CAACAgIAAxkBAAJa4F6ruKEnj8ruZNU-aHOi4VGEVaOXAAI-AAN-aWUTI6JPEmql0IQZBA'
 BAD_STICKER   = 'CAACAgIAAxkBAAJa3l6ruJXqg3yW0gQLtmABjwnwh0KOAAJUAAN-aWUTDB6aKeV3oxkZBA'
 
+UPDATE_ID     = None
 # create keyboard
 def generate_keyboard():
 	keyboard = [
@@ -41,7 +42,7 @@ def keyboard_regulate(update: Update, context):
 			chat_id = chat_id1,
 			text    = "nu molodec"
 		)
-		context.bot.send_message(
+		context.bot.send_sticker(
 			chat_id = chat_id1,
 			sticker = GOOD_STICKER	
 		)
@@ -51,7 +52,7 @@ def keyboard_regulate(update: Update, context):
 			chat_id = chat_id1,
 			text    = "клоун"
 		)
-		context.bot.send_message(
+		context.bot.send_sticker(
 			chat_id = chat_id1,
 			sticker = BAD_STICKER
 		)
@@ -68,14 +69,14 @@ def start(update: Update, context):
 	user_name = update.effective_user.first_name
 	context.bot.send_message(
 		chat_id      = update.effective_message.chat_id,
-		text         = f"Привет, {user_name}!/nЧе как?",
+		text         = f"Привет, {user_name}!\nЧе как?",
 		reply_markup = generate_keyboard()
 	)
 
 # bot init
 def main():
 	# token.bind
-	my_update = Update(
+	my_update = Updater(
 		token       = config.TOKEN,
 		base_url    = config.PROXI,
 		use_context = True
@@ -90,8 +91,8 @@ def main():
 	my_update.dispatcher.add_handler(msg_handler)
 	# Polling  - bot always handles to server and checks inf if changes
 	# WebHooks - server handle to bot if have changes
-	msg_update.start_polling()
-	msg_update.idle()
+	my_update.start_polling()
+	my_update.idle()
 
 
 if __name__ == "__main__":
