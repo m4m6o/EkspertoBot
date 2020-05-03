@@ -6,7 +6,7 @@
 import config
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CallbackQueryHandler, MessageHandler, CommandHandler, Filters
-
+from GetCourses.GetCourses import GetCourses
 # pos & neg callbacks
 CALLBACK_GOOD = '5'
 CALLBACK_BAD  = '2'
@@ -18,8 +18,8 @@ UPDATE_ID     = None
 # create keyboard
 def generate_keyboard():
 	keyboard = [
-		[InlineKeyboardButton("5", callback_data=CALLBACK_GOOD),
-		 InlineKeyboardButton("2", callback_data=CALLBACK_BAD)]
+		[InlineKeyboardButton("5", callback_data=CALLBACK_GOOD)],
+		[InlineKeyboardButton("2", callback_data=CALLBACK_BAD)]
 	]  # [[button1, button2]]
 	return InlineKeyboardMarkup(keyboard)
 
@@ -46,6 +46,9 @@ def keyboard_regulate(update: Update, context):
 			chat_id = chat_id1,
 			sticker = GOOD_STICKER	
 		)
+		context.bot.send_message(
+			chat_id = chat_id1,
+			text    = " ".join(GetCourses(chat_id1)))
 	# 2
 	elif current_callback == CALLBACK_BAD:
 		context.bot.send_message(
