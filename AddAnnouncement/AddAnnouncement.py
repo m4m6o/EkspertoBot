@@ -12,15 +12,13 @@ os.chdir("/")
 for file in glob.glob("*.pickle"):
     user += 1
 
-SCOPES = ['https://www.googleapis.com/auth/classroom.courses.readonly']
+SCOPES = ['https://www.googleapis.com/auth/classroom.announcements']
 
-def GetCourses(chat_id):
+def AddAnnouncement(chat_id, course_id, description):
     
     creds            = None
-    pickleToken_path = "GetCourses/" + str(chat_id) + "_token.pickle"
-    credentials_path = "GetCourses/credentials.json"
-
-
+    pickleToken_path = "AddCourse/" + str(chat_id) + "_token.pickle"
+    credentials_path = "AddCourse/credentials.json"
 
     if os.path.exists(pickleToken_path):
         with open(pickleToken_path, 'rb') as token:
@@ -30,23 +28,12 @@ def GetCourses(chat_id):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow  = Flow.from_client_secrets_file(credentials_path, 
-                                                  SCOPES)
+            flow  = Flow.from_client_secrets_file(credentials_path, SCOPES)
             creds = flow.run_local_server(port=users)
         
         with open(pickleToken_path, 'wb') as token:
             pickle.dump(creds, token)
 
     service = build('classroom', 'v1', credentials=creds)
-
-    results = service.courses().list().execute()
-    courses = results.get('courses', [])
-
-    answer = []
-    if not courses:
-        answer.append('No courses found.')
-    else:
-        answer.append('Courses:')
-        for course in courses:
-            answer.append(course['name'])
-    return answer
+    
+    announce = service.courses().announcements(body=course_id).create({"description": description}).execute()

@@ -6,21 +6,31 @@
 import config
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CallbackQueryHandler, MessageHandler, CommandHandler, Filters
+from AddCourse.AddCourse import AddCourse
+from AddAnnouncements.AddAnnouncements import AddAnnouncements
 from GetCourses.GetCourses import GetCourses
-# pos & neg callbacks
-CALLBACK_GOOD = '5'
-CALLBACK_BAD  = '2'
-# stickers
-GOOD_STICKER  = 'CAACAgIAAxkBAAJa4F6ruKEnj8ruZNU-aHOi4VGEVaOXAAI-AAN-aWUTI6JPEmql0IQZBA'
-BAD_STICKER   = 'CAACAgIAAxkBAAJa3l6ruJXqg3yW0gQLtmABjwnwh0KOAAJUAAN-aWUTDB6aKeV3oxkZBA'
+from ViewCourseWork.ViewCourseWork import ViewCourseWork
+from ViewStudentList.ViewStudentList import ViewStudentList
 
+
+# callbacks
+CALLBACK_1 = 'First'
+CALLBACK_2 = 'Second'
+CALLBACK_3 = 'Third'
+CALLBACK_4 = 'Fourth'
+CALLBACK_5 = 'Fifth'
+# stickers
+step = {}
 UPDATE_ID     = None
 # create keyboard
 def generate_keyboard():
 	keyboard = [
-		[InlineKeyboardButton("5", callback_data=CALLBACK_GOOD)],
-		[InlineKeyboardButton("2", callback_data=CALLBACK_BAD)]
-	]  # [[button1, button2]]
+		[InlineKeyboardButton("1. Создать новый курс", callback_data=CALLBACK_1)],
+		[InlineKeyboardButton("2. Мои курсы",          callback_data=CALLBACK_2)],
+		[InlineKeyboardButton("3. Список заданий",     callback_data=CALLBACK_3)],
+		[InlineKeyboardButton("4. Список учащихся",    callback_data=CALLBACK_4)],
+		[InlineKeyboardButton("5. Добавить новость",   callback_data=CALLBACK_5)]
+	]
 	return InlineKeyboardMarkup(keyboard)
 
 # keyboard.onClickListener
@@ -30,35 +40,41 @@ def keyboard_regulate(update: Update, context):
 	current_callback = query.data
 
 	chat_id1 = update.effective_message.chat_id
-
-	# delete keyboard
+	
+	''' # delete keyboard
 	query.edit_message_text(
 		text=update.effective_message.text
-	)
+	) '''
 
-	# 5
-	if current_callback == CALLBACK_GOOD:
+	if current_callback == CALLBACK_1:
 		context.bot.send_message(
 			chat_id = chat_id1,
-			text    = "nu molodec"
+			text    = "И так, вы хотите открыть курс на платформе Google Classroom. Поздравляем с начинаниями! Для первого шага необходимо придумать название для вашего курса. Если же вы хотите выйти из этого меню, то введите команду /back"
 		)
-		context.bot.send_sticker(
-			chat_id = chat_id1,
-			sticker = GOOD_STICKER	
-		)
+		AddCourse(chat_id1, title, subject, audience)
+	elif current_callback == CALLBACK_2:
 		context.bot.send_message(
 			chat_id = chat_id1,
-			text    = " ".join(GetCourses(chat_id1)))
-	# 2
-	elif current_callback == CALLBACK_BAD:
+			text    = "\n".join(GetCourses(chat_id1)))
+	elif current_callback == CALLBACK_3:
 		context.bot.send_message(
 			chat_id = chat_id1,
-			text    = "клоун"
-		)
-		context.bot.send_sticker(
+			text    = "\n".join(ViewCourseWork(chat_id1, course_id)))
+
+	elif current_callback == CALLBACK_4:
+		context.bot.send_message(
 			chat_id = chat_id1,
-			sticker = BAD_STICKER
+			text    = "\n".join(ViewStudentList(chat_id1, course_id)))
+
+	elif current_callback == CALLBACK_5:
+		context.bot.send_message(
+			chat_id = chat_id1,
+			text    = "5"
 		)
+		AddAnnouncements(chat_id1, course_id, description)
+	else:
+		print("Error")
+		print(current_callback)
 
 # echo bot
 def hello(update: Update, context):
